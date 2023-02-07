@@ -1,0 +1,9 @@
+{
+  "name": "simple-chat",
+  "license": "UNLICENSED",
+  "private": true,
+  "workspaces": [
+    "packages/frontend",
+    "packages/backend"
+  ]
+}
