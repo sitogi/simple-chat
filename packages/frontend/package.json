@@ -6,8 +6,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "jest",
-    "prepare": "npx simple-git-hooks || :"
+    "test": "jest"
   },
   "dependencies": {
     "react": "^18.2.0",
