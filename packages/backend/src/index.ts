@@ -1,7 +1,7 @@
 import express from 'express';
 import { pinoHttp as pino } from 'pino-http';
 
-import { createUser, deleteUser, getUser, getUsers, updateUser } from './handlers/users';
+import { createUser, deleteUser, getUser, getUsers, login, updateUser } from './handlers/users';
 
 const app = express();
 
@@ -16,7 +16,18 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ❯ http POST localhost:3000/user name=new-user email=new@example.com
+// `http POST localhost:3000/login email=new@example.com password=password`
+app.post('/login', async (req, res) => {
+  try {
+    const token = await login(req);
+    res.status(200).json(token);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('internal error');
+  }
+});
+
+// `http POST localhost:3000/user name=new-user email=new@example.com password=password`
 app.post('/user', async (req, res) => {
   try {
     const user = await createUser(req);
@@ -27,7 +38,7 @@ app.post('/user', async (req, res) => {
   }
 });
 
-// ❯ http localhost:3000/users
+// `http localhost:3000/users`
 app.get('/users', async (req, res) => {
   try {
     const users = await getUsers();
@@ -38,7 +49,7 @@ app.get('/users', async (req, res) => {
   }
 });
 
-// ❯ http localhost:3000/user/1
+// `http localhost:3000/user/1`
 app.get('/user/:id', async (req, res) => {
   try {
     const user = await getUser(req);
@@ -49,7 +60,7 @@ app.get('/user/:id', async (req, res) => {
   }
 });
 
-// ❯ http PUT localhost:3000/user/4 name=new-user-updated email=new@example.com
+// `http PUT localhost:3000/user/4 name=new-user-updated email=new@example.com`
 app.put('/user/:id', async (req, res) => {
   try {
     const user = await updateUser(req);
@@ -60,7 +71,7 @@ app.put('/user/:id', async (req, res) => {
   }
 });
 
-// ❯ http DELETE localhost:3000/user/4
+// `http DELETE localhost:3000/user/4`
 app.delete('/user/:id', async (req, res) => {
   try {
     const user = await deleteUser(req);
