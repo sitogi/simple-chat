@@ -1,26 +1,21 @@
 import bcrypt from 'bcrypt';
-import { add } from 'date-fns';
 import { Request } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 import { prisma } from '../libs/prisma';
 
-// TODO: もろもろ環境変数化
-const JWT_ID_TOKEN_SECRET_KEY = 'ID_TOKEN_SECRET_KEY';
-const JWT_REFRESH_TOKEN_SECRET_KEY = 'REFRESH_TOKEN_SECRET_KEY';
+// TODO: 環境変数アクセスを config みたいなものにまとめる
+export const accessTokenSecret = process.env.JWT_ACCESS_TOKEN_SECRET_KEY || '';
+export const refreshTokenSecret = process.env.JWT_REFRESH_TOKEN_SECRET_KEY || '';
 
 const generateAccessToken = (uid: string): string => {
-  const after2Hours = add(new Date(), { hours: 2 });
-
-  const accessToken = jwt.sign({ uid, exp: after2Hours }, JWT_ID_TOKEN_SECRET_KEY, {});
+  const accessToken = jwt.sign({ uid }, accessTokenSecret, { expiresIn: '20s' });
 
   return accessToken;
 };
 
 const generateRefreshToken = (uid: string): string => {
-  const after2Minutes = add(new Date(), { minutes: 2 });
-
-  const refreshToken = jwt.sign({ uid, exp: after2Minutes }, JWT_REFRESH_TOKEN_SECRET_KEY, {});
+  const refreshToken = jwt.sign({ uid }, refreshTokenSecret, { expiresIn: '20m' });
 
   return refreshToken;
 };
@@ -29,11 +24,11 @@ export const generateTokens = (uid: string): { accessToken: string; refreshToken
   return { accessToken: generateAccessToken(uid), refreshToken: generateRefreshToken(uid) };
 };
 
-export const refreshTokens = async (refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> => {
+export const refreshAccessToken = async (refreshToken: string): Promise<{ accessToken: string }> => {
   try {
-    const { uid } = jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET_KEY) as JwtPayload;
+    const { uid } = jwt.verify(refreshToken, refreshTokenSecret) as JwtPayload;
 
-    return { accessToken: generateAccessToken(uid), refreshToken: generateRefreshToken(uid) };
+    return { accessToken: generateAccessToken(uid) };
   } catch (e) {
     throw new Error('unauthorized');
   }
