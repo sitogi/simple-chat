@@ -5,8 +5,6 @@ module.exports = {
     es2021: true,
   },
   extends: [
-    'eslint:recommended',
-    'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier',
     'plugin:import/recommended',
@@ -18,6 +16,7 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
+    'newline-before-return': 'error',
     'import/order': [
       'error',
       {
