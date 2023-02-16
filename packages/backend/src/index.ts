@@ -1,8 +1,9 @@
+import cors from 'cors';
 import express from 'express';
 import { pinoHttp as pino } from 'pino-http';
 
-import { login, refreshAccessToken } from './handlers/auth';
-import { createUser, deleteUser, getUser, getUsers, updateUser } from './handlers/users';
+import { login, getUser, refreshAccessToken, UnauthorizedError } from './handlers/auth';
+import { createUser, deleteUser, getUsers, updateUser } from './handlers/users';
 import { verifyToken } from './middlewares/verifyToken';
 
 const app = express();
@@ -20,19 +21,36 @@ app.use(
   }),
 );
 app.use(express.json());
+app.use(cors()); // TODO: 全部許可やめる
 app.use(express.urlencoded({ extended: true }));
 
-app.post('/login', async (req, res) => {
+app.post('/auth/login', async (req, res) => {
   try {
-    const token = await login(req);
-    res.status(200).json(token);
+    const userWithToken = await login(req);
+    console.log(userWithToken);
+    res.status(200).json(userWithToken);
+  } catch (err) {
+    if (err instanceof UnauthorizedError) {
+      res.status(401).send(err.message);
+    }
+    console.error(err);
+    res.status(500).send('internal error');
+  }
+});
+
+app.get('/auth/user', verifyToken, async (req, res) => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const user = await getUser(req.uid);
+    res.status(200).json(user);
   } catch (err) {
     console.error(err);
     res.status(500).send('internal error');
   }
 });
 
-app.post('/refresh-token', async (req, res) => {
+app.post('/auth/refresh-token', async (req, res) => {
   try {
     const { refreshToken } = req.body;
     const token = await refreshAccessToken(refreshToken);
@@ -57,21 +75,6 @@ app.get('/users', async (req, res) => {
   try {
     const users = await getUsers();
     res.status(200).json(users);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('internal error');
-  }
-});
-
-app.get('/user/:id', verifyToken, async (req, res) => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (req.params.id !== req.uid) {
-      res.status(403).send('Forbidden');
-    }
-    const user = await getUser(req);
-    res.status(200).json(user);
   } catch (err) {
     console.error(err);
     res.status(500).send('internal error');

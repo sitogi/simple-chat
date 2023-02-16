@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import { Request } from 'express';
+import { UserWithoutPassword } from 'handlers/users';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-import { prisma } from '../libs/prisma';
+import { exclude, prisma } from '../libs/prisma';
 
 // TODO: 環境変数アクセスを config みたいなものにまとめる
 export const accessTokenSecret = process.env.JWT_ACCESS_TOKEN_SECRET_KEY || '';
@@ -34,20 +35,42 @@ export const refreshAccessToken = async (refreshToken: string): Promise<{ access
   }
 };
 
-export const login = async (req: Request): Promise<{ accessToken: string; refreshToken: string } | null> => {
+export class UnauthorizedError extends Error {
+  constructor() {
+    super('No user or wrong password');
+  }
+}
+
+export const login = async (
+  req: Request,
+): Promise<{ user: UserWithoutPassword; accessToken: string; refreshToken: string } | null> => {
   const { email, password } = req.body;
   const user = await prisma.user.findUnique({
     where: { email },
   });
   if (!user) {
-    throw new Error('User not found or wrong password');
+    throw new UnauthorizedError();
   }
 
   const isOk = await bcrypt.compare(password, user.password);
 
   if (!isOk) {
-    throw new Error('User not found or wrong password');
+    throw new UnauthorizedError();
   }
 
-  return generateTokens(String(user.id));
+  return { user: exclude(user, ['password']), ...generateTokens(String(user.id)) };
+};
+
+export const getUser = async (uid: string): Promise<UserWithoutPassword | null> => {
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(uid) },
+  });
+
+  if (user == null) {
+    throw new Error('User not found');
+  }
+
+  const userWithoutPassword = exclude(user, ['password']);
+
+  return userWithoutPassword;
 };

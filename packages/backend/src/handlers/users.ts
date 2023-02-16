@@ -6,7 +6,7 @@ import { exclude, prisma } from '../libs/prisma';
 
 import { generateTokens } from './auth';
 
-type UserWithoutPassword = Omit<User, 'password'>;
+export type UserWithoutPassword = Omit<User, 'password'>;
 
 type CreateUserResponse = {
   user: UserWithoutPassword;
@@ -31,21 +31,6 @@ export const getUsers = async (): Promise<UserWithoutPassword[]> => {
   const users = await prisma.user.findMany();
 
   return users.map((u) => exclude(u, ['password']));
-};
-
-export const getUser = async (req: Request): Promise<UserWithoutPassword | null> => {
-  const user = await prisma.user.findUnique({
-    where: { id: parseInt(req.params?.id) },
-  });
-
-  // TODO: エラーコードとかで拾えるようにすべき
-  if (user == null) {
-    throw new Error('User not found');
-  }
-
-  const userWithoutPassword = exclude(user, ['password']);
-
-  return userWithoutPassword;
 };
 
 export const updateUser = async (req: Request): Promise<UserWithoutPassword | null> => {
