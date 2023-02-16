@@ -3,12 +3,6 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 
 import { accessTokenSecret } from '../handlers/auth';
 
-// TODO: グローバル空間で上書きするほうがよさげ？
-// see: https://stackoverflow.com/questions/37377731/extend-express-request-object-using-typescript
-interface CustomRequest extends Request {
-  uid: string;
-}
-
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   try {
     const bearerToken = req.headers['authorization'];
