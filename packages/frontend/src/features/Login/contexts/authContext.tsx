@@ -4,20 +4,17 @@ import { Navigate } from 'react-router-dom';
 import { Grid, Spinner } from '@chakra-ui/react';
 
 import { typedStorage } from '~/common/localStorage/TypeSafeLocalStorage';
-import { setTokenWithHeader, User } from '~/features/Login/apis/login';
+import { setTokenWithHeader } from '~/features/Login/apis/login';
 import { useAuth } from '~/features/Login/hooks/useAuth';
 
-const AuthContext = createContext<{
-  user: User | undefined | null;
-  login: (email: string, password: string) => Promise<void>;
-}>({} as never);
+const AuthContext = createContext<Partial<ReturnType<typeof useAuth>>>({} as never);
 
 export function useAuthContext() {
   return useContext(AuthContext);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user, setUser, login, fetchUser } = useAuth();
+  const { user, setUser, login, logout, fetchUser } = useAuth();
 
   useEffect(() => {
     const token = typedStorage.get('accessToken');
@@ -30,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  return <AuthContext.Provider value={{ user, login }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
 }
 
 export const ProtectedRoute = ({ children }: { children: ReactNode }) => {

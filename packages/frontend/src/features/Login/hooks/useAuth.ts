@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { PATH_LOGIN, PATH_ROOT } from '~/common/constants';
+import { typedStorage } from '~/common/localStorage/TypeSafeLocalStorage';
 import * as api from '~/features/Login/apis/login';
 
 export const useAuth = () => {
@@ -29,6 +30,13 @@ export const useAuth = () => {
     }
   };
 
+  const logout = async () => {
+    typedStorage.remove('accessToken');
+    typedStorage.remove('refreshToken');
+    setUser(null);
+    navigate(PATH_LOGIN);
+  };
+
   const fetchUser = async () => {
     try {
       const user = await api.fetchUser();
@@ -39,5 +47,5 @@ export const useAuth = () => {
     }
   };
 
-  return { user, login, fetchUser, setUser };
+  return { user, login, logout, fetchUser, setUser };
 };

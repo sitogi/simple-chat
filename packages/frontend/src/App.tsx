@@ -1,4 +1,4 @@
-import { Grid, Text } from '@chakra-ui/react';
+import { Button, Grid, Text } from '@chakra-ui/react';
 import { Navigate, Outlet, Route, Routes } from 'react-router';
 
 import { PATH_LOGIN, PATH_ROOT } from '~/common/constants';
@@ -15,12 +15,15 @@ const SideBar = () => {
 };
 
 const TopPage = () => {
-  const { user } = useAuthContext();
+  const { user, logout } = useAuthContext();
 
   return (
-    <Grid placeContent="center" h="full" w="full">
+    <Grid placeContent="center" h="full" w="full" gap={4}>
       <Text>ログインしました。</Text>
       <Text>{JSON.stringify(user)}</Text>
+      <Button colorScheme="red" onClick={logout}>
+        Logout
+      </Button>
     </Grid>
   );
 };
