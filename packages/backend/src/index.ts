@@ -27,7 +27,6 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/auth/login', async (req, res) => {
   try {
     const userWithToken = await login(req);
-    console.log(userWithToken);
     res.status(200).json(userWithToken);
   } catch (err) {
     if (err instanceof UnauthorizedError) {

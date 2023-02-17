@@ -32,7 +32,7 @@ export async function login(email: string, password: string): Promise<{ user: Us
 
 export type User = { id: number; email: string; name: string; created_at: Date; updated_at: Date };
 
-export async function getUser(): Promise<User> {
+export async function fetchUser(): Promise<User> {
   try {
     const response = await axios.get('/auth/user');
     const user = response.data;

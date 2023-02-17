@@ -13,27 +13,20 @@ import {
   Input,
   Stack,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router';
 
-import { PATH_ROOT } from '~/common/constants';
-import { login } from '~/features/Login/apis/login';
 import { useAuthContext } from '~/features/Login/contexts/authContext';
 
 export const Login = (): JSX.Element => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const navigate = useNavigate();
-  const { setContextUser } = useAuthContext();
+  const { login } = useAuthContext();
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     try {
       setErrorMsg('');
-      const { user } = await login(email, password);
-      setContextUser(user);
-
-      navigate(PATH_ROOT);
+      await login(email, password);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Unexpected Error';
       setErrorMsg(msg);
