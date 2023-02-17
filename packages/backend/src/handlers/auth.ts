@@ -44,21 +44,44 @@ export class UnauthorizedError extends Error {
 export const login = async (
   req: Request,
 ): Promise<{ user: UserWithoutPassword; accessToken: string; refreshToken: string } | null> => {
-  const { email, password } = req.body;
-  const user = await prisma.user.findUnique({
-    where: { email },
+  return prisma.$transaction(async (tx) => {
+    const { email, password } = req.body;
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (!user) {
+      throw new UnauthorizedError();
+    }
+
+    const isOk = await bcrypt.compare(password, user.password);
+    if (!isOk) {
+      throw new UnauthorizedError();
+    }
+
+    const userWithoutPass = exclude(user, ['password']);
+    const { accessToken, refreshToken } = generateTokens(String(user.id));
+
+    await tx.token.upsert({
+      where: { id: userWithoutPass.id },
+      create: {
+        uid: userWithoutPass.id,
+        refreshToken,
+        updatedAt: new Date(),
+      },
+      update: {
+        refreshToken,
+        updatedAt: new Date(),
+      },
+    });
+
+    return { user: userWithoutPass, accessToken, refreshToken };
   });
-  if (!user) {
-    throw new UnauthorizedError();
-  }
+};
 
-  const isOk = await bcrypt.compare(password, user.password);
-
-  if (!isOk) {
-    throw new UnauthorizedError();
-  }
-
-  return { user: exclude(user, ['password']), ...generateTokens(String(user.id)) };
+export const revokeRefreshToken = async (uid: string): Promise<void> => {
+  await prisma.token.delete({
+    where: { uid: parseInt(uid) },
+  });
 };
 
 export const getUser = async (uid: string): Promise<UserWithoutPassword | null> => {

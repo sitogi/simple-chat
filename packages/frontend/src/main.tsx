@@ -6,7 +6,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 
 import '~/index.css';
 import { App } from '~/App';
-import { AuthProvider } from '~/features/Login/contexts/authContext';
+import { AuthProvider } from '~/features/Auth/contexts/authContext';
 import { chakraTheme } from '~/libs/chakra-theme';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

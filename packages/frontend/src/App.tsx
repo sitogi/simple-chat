@@ -1,10 +1,9 @@
-import { Button, Grid, Text } from '@chakra-ui/react';
+import { Grid, Text } from '@chakra-ui/react';
 import { Navigate, Outlet, Route, Routes } from 'react-router';
 
-import { PATH_LOGIN, PATH_HOME, PATH_SIGNUP } from '~/common/constants';
-import { Login } from '~/features/Login/components/Login';
-import { SignUp } from '~/features/Login/components/SignUp';
-import { ProtectedRoute, useAuthContext } from '~/features/Login/contexts/authContext';
+import { PATH_HOME, PATH_LOGIN, PATH_SIGNUP } from '~/common/constants';
+import { Login, Logout, SignUp } from '~/features/Auth';
+import { ProtectedRoute, useAuthContext } from '~/features/Auth/contexts/authContext';
 import { HorizontallyResizableLayout } from '~/layouts/HorizontallyResizableLayout';
 
 const SideBar = () => {
@@ -22,9 +21,7 @@ const TopPage = () => {
     <Grid placeContent="center" h="full" w="full" gap={4}>
       <Text>ログインしました。</Text>
       <Text>{JSON.stringify(user)}</Text>
-      <Button colorScheme="red" onClick={logout}>
-        Logout
-      </Button>
+      <Logout />
     </Grid>
   );
 };

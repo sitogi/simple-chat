@@ -2,7 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import { pinoHttp as pino } from 'pino-http';
 
-import { getUser, login, refreshAccessToken, UnauthorizedError } from '~/handlers/auth';
+import { getUser, login, refreshAccessToken, revokeRefreshToken, UnauthorizedError } from '~/handlers/auth';
 import { createUser, deleteUser, getUsers, updateUser } from '~/handlers/users';
 import { verifyToken } from '~/middlewares/verifyToken';
 
@@ -55,6 +55,21 @@ app.post('/auth/token-refresh', async (req, res) => {
     const token = await refreshAccessToken(refreshToken);
     res.status(200).json(token);
   } catch (err) {
+    console.error(err);
+    res.status(500).send('internal error');
+  }
+});
+
+app.post('/auth/logout', verifyToken, async (req, res) => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    await revokeRefreshToken(req.uid);
+    res.status(200).json();
+  } catch (err) {
+    if (err instanceof UnauthorizedError) {
+      res.status(401).send(err.message);
+    }
     console.error(err);
     res.status(500).send('internal error');
   }

@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { PATH_LOGIN, PATH_HOME } from '~/common/constants';
-import { typedStorage } from '~/common/localStorage/TypeSafeLocalStorage';
-import * as api from '~/features/Login/apis/login';
+import { PATH_HOME, PATH_LOGIN } from '~/common/constants';
+import * as api from '~/features/Auth/apis/login';
 
 export const useAuth = () => {
   const [user, setUser] = useState<api.User | undefined | null>(undefined);
@@ -31,9 +30,8 @@ export const useAuth = () => {
     }
   };
 
-  const logout = () => {
-    typedStorage.remove('accessToken');
-    typedStorage.remove('refreshToken');
+  const logout = async () => {
+    await api.logout();
     setUser(null);
     navigate(PATH_LOGIN);
   };
@@ -48,5 +46,5 @@ export const useAuth = () => {
     }
   };
 
-  return { user, login, signUp, logout, fetchUser };
+  return { user, login, signUp, logout, fetchUser, setUser };
 };

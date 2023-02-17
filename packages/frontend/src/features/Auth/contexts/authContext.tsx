@@ -4,17 +4,17 @@ import { Navigate } from 'react-router-dom';
 import { Grid, Spinner } from '@chakra-ui/react';
 
 import { typedStorage } from '~/common/localStorage/TypeSafeLocalStorage';
-import { useAuth } from '~/features/Login/hooks/useAuth';
+import { useAuth } from '~/features/Auth/hooks/useAuth';
 import { setTokenWithHeader } from '~/libs/axios';
 
-const AuthContext = createContext<ReturnType<typeof useAuth>>({} as never);
+const AuthContext = createContext<Omit<ReturnType<typeof useAuth>, 'setUser'>>({} as never);
 
 export function useAuthContext() {
   return useContext(AuthContext);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user, login, logout, fetchUser, signUp } = useAuth();
+  const { user, login, logout, fetchUser, signUp, setUser } = useAuth();
 
   useEffect(() => {
     const token = typedStorage.get('accessToken');
@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setTokenWithHeader(token);
       void fetchUser();
     } else {
-      logout();
+      setUser(null);
     }
   }, []);
 

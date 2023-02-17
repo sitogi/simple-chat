@@ -15,24 +15,24 @@ import {
   Input,
   Link,
   Stack,
-  Text,
   VStack,
 } from '@chakra-ui/react';
 
-import { PATH_SIGNUP } from '~/common/constants';
-import { useAuthContext } from '~/features/Login/contexts/authContext';
+import { PATH_LOGIN } from '~/common/constants';
+import { useAuthContext } from '~/features/Auth/contexts/authContext';
 
-export const Login = (): JSX.Element => {
+export const SignUp = (): JSX.Element => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const { login } = useAuthContext();
+  const { signUp } = useAuthContext();
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     try {
       setErrorMsg('');
-      await login(email, password);
+      await signUp(email, password, name);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Unexpected Error';
       setErrorMsg(msg);
@@ -41,7 +41,7 @@ export const Login = (): JSX.Element => {
 
   return (
     <Grid placeContent="center" h="100vh" w="100vw" bg="black" gap={8}>
-      <Heading mx="auto"> Login </Heading>
+      <Heading mx="auto">Sign Up</Heading>
       <Stack>
         {errorMsg !== '' && (
           <Alert status="error" rounded="md">
@@ -76,16 +76,25 @@ export const Login = (): JSX.Element => {
                 onChange={(event) => setPassword(event.target.value)}
               />
             </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="name">Name</FormLabel>
+              <Input
+                id="name"
+                borderColor="gray.500"
+                focusBorderColor="green.400"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </FormControl>
             <Button type="submit" colorScheme="green">
-              Login
+              Sign Up
             </Button>
           </Stack>
         </Grid>
       </Stack>
       <VStack>
-        <Text>{`Don't have an account?`}</Text>
-        <Link as={RouterLink} to={PATH_SIGNUP} color="blue.200">
-          Sign Up
+        <Link as={RouterLink} to={PATH_LOGIN} color="blue.200">
+          Back to Login
         </Link>
       </VStack>
     </Grid>

@@ -49,6 +49,17 @@ export async function login(email: string, password: string): Promise<{ user: Us
   }
 }
 
+export async function logout(): Promise<void> {
+  try {
+    await axios.post('/auth/logout');
+  } catch (e) {
+    console.error(e);
+  } finally {
+    typedStorage.remove('accessToken');
+    typedStorage.remove('refreshToken');
+  }
+}
+
 export type User = { id: number; email: string; name: string; created_at: Date; updated_at: Date };
 
 export async function fetchUser(): Promise<User> {

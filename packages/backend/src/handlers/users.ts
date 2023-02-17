@@ -12,18 +12,30 @@ type CreateUserResponse = {
 } & ReturnType<typeof generateTokens>;
 
 export const createUser = async (req: Request): Promise<CreateUserResponse | null> => {
-  const { name, email, password } = req.body;
+  return prisma.$transaction(async (tx) => {
+    const { name, email, password } = req.body;
+    const hashedPass = await bcrypt.hash(password, 10);
+    const user = await tx.user.create({
+      data: { name, email, password: hashedPass },
+    });
+    const userWithoutPass = exclude(user, ['password']);
+    const tokens = generateTokens(String(user.id));
 
-  const hashedPass = await bcrypt.hash(password, 10);
+    await tx.token.upsert({
+      where: { id: user.id },
+      create: {
+        uid: userWithoutPass.id,
+        refreshToken: tokens.refreshToken,
+        updatedAt: new Date(),
+      },
+      update: {
+        refreshToken: tokens.refreshToken,
+        updatedAt: new Date(),
+      },
+    });
 
-  const user = await prisma.user.create({
-    data: { name, email, password: hashedPass },
+    return { user: userWithoutPass, ...tokens };
   });
-  const userWithoutPass = exclude(user, ['password']);
-
-  const tokens = generateTokens(String(user.id));
-
-  return { user: userWithoutPass, ...tokens };
 };
 
 export const getUsers = async (): Promise<UserWithoutPassword[]> => {
