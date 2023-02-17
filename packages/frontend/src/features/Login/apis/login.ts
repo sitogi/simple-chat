@@ -1,11 +1,7 @@
 import { isAxiosError } from 'axios';
 
 import { typedStorage } from '~/common/localStorage/TypeSafeLocalStorage';
-import axios from '~/libs/axios';
-
-export function setTokenWithHeader(token: string) {
-  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-}
+import axios, { setTokenWithHeader } from '~/libs/axios';
 
 export async function login(email: string, password: string): Promise<{ user: User }> {
   try {

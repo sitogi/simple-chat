@@ -49,7 +49,7 @@ app.get('/auth/user', verifyToken, async (req, res) => {
   }
 });
 
-app.post('/auth/refresh-token', async (req, res) => {
+app.post('/auth/token-refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;
     const token = await refreshAccessToken(refreshToken);

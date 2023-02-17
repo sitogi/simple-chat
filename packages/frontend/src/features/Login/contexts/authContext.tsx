@@ -4,8 +4,8 @@ import { Navigate } from 'react-router-dom';
 import { Grid, Spinner } from '@chakra-ui/react';
 
 import { typedStorage } from '~/common/localStorage/TypeSafeLocalStorage';
-import { setTokenWithHeader } from '~/features/Login/apis/login';
 import { useAuth } from '~/features/Login/hooks/useAuth';
+import { setTokenWithHeader } from '~/libs/axios';
 
 const AuthContext = createContext<Partial<ReturnType<typeof useAuth>>>({} as never);
 
