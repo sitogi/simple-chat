@@ -6,6 +6,11 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "baseUrl": "./src",
+    "paths": {
+      "~/*": [
+        "./*"
+      ]
+    }
   },
   "include": ["src/**/*"],
 }

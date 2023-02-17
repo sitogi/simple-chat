@@ -2,9 +2,9 @@ import cors from 'cors';
 import express from 'express';
 import { pinoHttp as pino } from 'pino-http';
 
-import { login, getUser, refreshAccessToken, UnauthorizedError } from './handlers/auth';
-import { createUser, deleteUser, getUsers, updateUser } from './handlers/users';
-import { verifyToken } from './middlewares/verifyToken';
+import { getUser, login, refreshAccessToken, UnauthorizedError } from '~/handlers/auth';
+import { createUser, deleteUser, getUsers, updateUser } from '~/handlers/users';
+import { verifyToken } from '~/middlewares/verifyToken';
 
 const app = express();
 

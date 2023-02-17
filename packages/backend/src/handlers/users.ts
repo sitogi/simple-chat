@@ -2,9 +2,8 @@ import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { Request } from 'express';
 
-import { exclude, prisma } from '../libs/prisma';
-
-import { generateTokens } from './auth';
+import { generateTokens } from '~/handlers/auth';
+import { exclude, prisma } from '~/libs/prisma';
 
 export type UserWithoutPassword = Omit<User, 'password'>;
 

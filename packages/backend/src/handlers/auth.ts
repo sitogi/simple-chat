@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
 import { Request } from 'express';
-import { UserWithoutPassword } from 'handlers/users';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-import { exclude, prisma } from '../libs/prisma';
+import { UserWithoutPassword } from '~/handlers/users';
+import { exclude, prisma } from '~/libs/prisma';
 
 // TODO: 環境変数アクセスを config みたいなものにまとめる
 export const accessTokenSecret = process.env.JWT_ACCESS_TOKEN_SECRET_KEY || '';
