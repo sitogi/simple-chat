@@ -7,14 +7,14 @@ import { typedStorage } from '~/common/localStorage/TypeSafeLocalStorage';
 import { useAuth } from '~/features/Login/hooks/useAuth';
 import { setTokenWithHeader } from '~/libs/axios';
 
-const AuthContext = createContext<Partial<ReturnType<typeof useAuth>>>({} as never);
+const AuthContext = createContext<ReturnType<typeof useAuth>>({} as never);
 
 export function useAuthContext() {
   return useContext(AuthContext);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user, setUser, login, logout, fetchUser } = useAuth();
+  const { user, login, logout, fetchUser, signUp } = useAuth();
 
   useEffect(() => {
     const token = typedStorage.get('accessToken');
@@ -23,11 +23,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setTokenWithHeader(token);
       void fetchUser();
     } else {
-      setUser(null);
+      logout();
     }
   }, []);
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, login, logout, fetchUser, signUp }}>{children}</AuthContext.Provider>;
 }
 
 export const ProtectedRoute = ({ children }: { children: ReactNode }) => {

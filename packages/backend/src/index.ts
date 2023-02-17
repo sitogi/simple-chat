@@ -60,10 +60,11 @@ app.post('/auth/token-refresh', async (req, res) => {
   }
 });
 
-app.post('/user', async (req, res) => {
+app.post('/auth/signup', async (req, res) => {
   try {
-    const user = await createUser(req);
-    res.status(200).json(user);
+    // TODO: 本当は色々バリデーションする
+    const userWithTokens = await createUser(req);
+    res.status(200).json(userWithTokens);
   } catch (err) {
     console.error(err);
     res.status(500).send('internal error');
