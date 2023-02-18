@@ -62,7 +62,7 @@ export const login = async (
     const { accessToken, refreshToken } = generateTokens(String(user.id));
 
     await tx.token.upsert({
-      where: { id: userWithoutPass.id },
+      where: { uid: userWithoutPass.id },
       create: {
         uid: userWithoutPass.id,
         refreshToken,

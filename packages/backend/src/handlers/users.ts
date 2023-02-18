@@ -22,7 +22,7 @@ export const createUser = async (req: Request): Promise<CreateUserResponse | nul
     const tokens = generateTokens(String(user.id));
 
     await tx.token.upsert({
-      where: { id: user.id },
+      where: { uid: user.id },
       create: {
         uid: userWithoutPass.id,
         refreshToken: tokens.refreshToken,
