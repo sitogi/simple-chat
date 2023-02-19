@@ -5,7 +5,7 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts | pino-pretty --ignore 'pid,hostname,reqId,responseTime,req,res' --messageFormat '[{req.method} {req.url}] {msg}'",
     "clean": "rimraf dist",
     "tsc": "tsc",
     "build": "npm-run-all clean tsc",
