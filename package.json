@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "test": "jest",
+    "lint": "npx eslint '**/src/**/*.{js,jsx,ts,tsx}'",
+    "lint:fix": "npm run lint -- --fix",
     "preinstall": "npx -y only-allow npm"
   },
   "devDependencies": {

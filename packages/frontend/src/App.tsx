@@ -15,7 +15,7 @@ const SideBar = () => {
 };
 
 const TopPage = () => {
-  const { user, logout } = useAuthContext();
+  const { user } = useAuthContext();
 
   return (
     <Grid placeContent="center" h="full" w="full" gap={4}>
