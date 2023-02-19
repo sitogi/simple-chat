@@ -2,8 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import { pinoHttp as pino } from 'pino-http';
 
-import { getUser, login, refreshAccessToken, revokeRefreshToken, UnauthorizedError } from '~/handlers/auth';
-import { createUser, deleteUser, getUsers, updateUser } from '~/handlers/users';
+import { createUser, getUser, login, refreshAccessToken, revokeRefreshToken, UnauthorizedError } from '~/handlers/auth';
 import { verifyToken } from '~/middlewares/verifyToken';
 
 const app = express();
@@ -80,46 +79,6 @@ app.post('/auth/signup', async (req, res) => {
     // TODO: 本当は色々バリデーションする
     const userWithTokens = await createUser(req);
     res.status(200).json(userWithTokens);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('internal error');
-  }
-});
-
-app.get('/users', async (req, res) => {
-  try {
-    const users = await getUsers();
-    res.status(200).json(users);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('internal error');
-  }
-});
-
-app.put('/user/:id', verifyToken, async (req, res) => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (req.params.id !== req.uid) {
-      res.status(403).send('Forbidden');
-    }
-    const user = await updateUser(req);
-    res.status(200).json(user);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('internal error');
-  }
-});
-
-app.delete('/user/:id', async (req, res) => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (req.params.id !== req.uid) {
-      res.status(403).send('Forbidden');
-    }
-    const user = await deleteUser(req);
-    res.status(200).json(user);
   } catch (err) {
     console.error(err);
     res.status(500).send('internal error');

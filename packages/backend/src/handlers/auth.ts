@@ -1,8 +1,8 @@
+import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { Request } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-import { UserWithoutPassword } from '~/handlers/users';
 import { exclude, prisma } from '~/libs/prisma';
 
 // TODO: 環境変数アクセスを config みたいなものにまとめる
@@ -31,6 +31,8 @@ export const refreshAccessToken = async (refreshToken: string): Promise<{ access
 
     return { accessToken: generateAccessToken(uid) };
   } catch (e) {
+    // TODO: ここが 500 で返ってしまわないようにする
+    console.log(e);
     throw new Error('unauthorized');
   }
 };
@@ -41,12 +43,49 @@ export class UnauthorizedError extends Error {
   }
 }
 
+export type UserWithoutPassword = Omit<User, 'password'>;
+
+type CreateUserResponse = {
+  user: UserWithoutPassword;
+} & ReturnType<typeof generateTokens>;
+
+export const createUser = async (req: Request): Promise<CreateUserResponse | null> => {
+  return prisma.$transaction(async (tx) => {
+    const { name, email, password } = req.body;
+    const hashedPass = await bcrypt.hash(password, 10);
+    const user = await tx.user.create({
+      data: {
+        email,
+        password: hashedPass,
+        profile: {
+          create: { name },
+        },
+      },
+    });
+    const userWithoutPass = exclude(user, ['password']);
+    const tokens = generateTokens(String(user.id));
+
+    await tx.token.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: userWithoutPass.id,
+        refreshToken: tokens.refreshToken,
+      },
+      update: {
+        refreshToken: tokens.refreshToken,
+      },
+    });
+
+    return { user: userWithoutPass, ...tokens };
+  });
+};
+
 export const login = async (
   req: Request,
 ): Promise<{ user: UserWithoutPassword; accessToken: string; refreshToken: string } | null> => {
   return prisma.$transaction(async (tx) => {
     const { email, password } = req.body;
-    const user = await prisma.user.findUnique({
+    const user = await tx.user.findUnique({
       where: { email },
     });
     if (!user) {
@@ -62,15 +101,13 @@ export const login = async (
     const { accessToken, refreshToken } = generateTokens(String(user.id));
 
     await tx.token.upsert({
-      where: { uid: userWithoutPass.id },
+      where: { userId: userWithoutPass.id },
       create: {
-        uid: userWithoutPass.id,
+        userId: userWithoutPass.id,
         refreshToken,
-        updatedAt: new Date(),
       },
       update: {
         refreshToken,
-        updatedAt: new Date(),
       },
     });
 
@@ -80,7 +117,7 @@ export const login = async (
 
 export const revokeRefreshToken = async (uid: string): Promise<void> => {
   await prisma.token.delete({
-    where: { uid: parseInt(uid) },
+    where: { userId: parseInt(uid) },
   });
 };
 
