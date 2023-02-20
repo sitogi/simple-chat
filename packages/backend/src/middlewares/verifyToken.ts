@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 import { accessTokenSecret } from '~/services/auth';
+import { setUidToRequest } from '~/utils/requestUtils';
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -21,10 +22,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
       if (err) {
         return res.status(401).json({ message: 'Invalid token' });
       } else {
-        // TODO: これどうにかする
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        req.uid = (decoded as JwtPayload).uid;
+        setUidToRequest(req, (decoded as JwtPayload).uid);
         next();
       }
     });

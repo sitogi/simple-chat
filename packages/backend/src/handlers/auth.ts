@@ -1,6 +1,7 @@
 import { Request } from 'express';
 
 import { createUser, getUser, login, refreshAccessToken, revokeRefreshToken } from '~/services/auth';
+import { getUidFromRequest } from '~/utils/requestUtils';
 
 export const loginHandler = async (req: Request) => {
   const userWithToken = await login(req);
@@ -9,9 +10,8 @@ export const loginHandler = async (req: Request) => {
 };
 
 export const authUserHandler = async (req: Request) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const user = await getUser(req.uid);
+  const uid = getUidFromRequest(req);
+  const user = await getUser(uid);
 
   return user;
 };
@@ -24,9 +24,8 @@ export const tokenRefreshHandler = async (req: Request) => {
 };
 
 export const logoutHandler = async (req: Request) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  await revokeRefreshToken(req.uid);
+  const uid = getUidFromRequest(req);
+  await revokeRefreshToken(uid);
 
   return {};
 };
