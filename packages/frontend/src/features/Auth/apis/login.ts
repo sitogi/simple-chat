@@ -17,12 +17,10 @@ export async function signUp(email: string, password: string, name: string): Pro
     typedStorage.remove('accessToken');
     typedStorage.remove('refreshToken');
     if (isAxiosError(e)) {
-      if (e.response?.status === 401) {
-        throw new Error(e.response.data);
-      }
+      throw new Error(e.response?.data);
     }
 
-    throw new Error('Unexpected error');
+    throw e;
   }
 }
 
@@ -40,12 +38,10 @@ export async function login(email: string, password: string): Promise<{ user: Us
     typedStorage.remove('accessToken');
     typedStorage.remove('refreshToken');
     if (isAxiosError(e)) {
-      if (e.response?.status === 401) {
-        throw new Error(e.response.data);
-      }
+      throw new Error(e.response?.data);
     }
 
-    throw new Error('Unexpected error');
+    throw e;
   }
 }
 
@@ -73,10 +69,10 @@ export async function fetchUser(): Promise<User> {
       if (e.response?.status === 401) {
         typedStorage.remove('accessToken');
         typedStorage.remove('refreshToken');
-        throw new Error(e.response.data);
       }
+      throw new Error(e.response?.data);
     }
 
-    throw new Error('Unexpected error');
+    throw e;
   }
 }

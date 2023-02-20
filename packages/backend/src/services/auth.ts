@@ -1,9 +1,10 @@
-import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { Request } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 import { exclude, prisma } from '~/libs/prisma';
+import { CreateUserResponse, Tokens, UserWithoutPassword } from '~/types/auth';
+import { BadRequestError, UnauthorizedError, UserNotFoundError } from '~/types/errors';
 
 // TODO: 環境変数アクセスを config みたいなものにまとめる
 export const accessTokenSecret = process.env.JWT_ACCESS_TOKEN_SECRET_KEY || '';
@@ -21,7 +22,7 @@ const generateRefreshToken = (uid: string): string => {
   return refreshToken;
 };
 
-export const generateTokens = (uid: string): { accessToken: string; refreshToken: string } => {
+export const generateTokens = (uid: string): Tokens => {
   return { accessToken: generateAccessToken(uid), refreshToken: generateRefreshToken(uid) };
 };
 
@@ -30,28 +31,28 @@ export const refreshAccessToken = async (refreshToken: string): Promise<{ access
     const { uid } = jwt.verify(refreshToken, refreshTokenSecret) as JwtPayload;
 
     return { accessToken: generateAccessToken(uid) };
-  } catch (e) {
-    // TODO: ここが 500 で返ってしまわないようにする
-    console.log(e);
-    throw new Error('unauthorized');
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : undefined;
+    throw new UnauthorizedError(msg);
   }
 };
-
-export class UnauthorizedError extends Error {
-  constructor() {
-    super('No user or wrong password');
-  }
-}
-
-export type UserWithoutPassword = Omit<User, 'password'>;
-
-type CreateUserResponse = {
-  user: UserWithoutPassword;
-} & ReturnType<typeof generateTokens>;
 
 export const createUser = async (req: Request): Promise<CreateUserResponse | null> => {
   return prisma.$transaction(async (tx) => {
     const { name, email, password } = req.body;
+
+    if (!email) {
+      throw new BadRequestError('email is required');
+    }
+
+    if (!password) {
+      throw new BadRequestError('email is required');
+    }
+
+    if (!name) {
+      throw new BadRequestError('name is required');
+    }
+
     const hashedPass = await bcrypt.hash(password, 10);
     const user = await tx.user.create({
       data: {
@@ -85,16 +86,25 @@ export const login = async (
 ): Promise<{ user: UserWithoutPassword; accessToken: string; refreshToken: string } | null> => {
   return prisma.$transaction(async (tx) => {
     const { email, password } = req.body;
+
+    if (!email) {
+      throw new BadRequestError('email is required.');
+    }
+
+    if (!password) {
+      throw new BadRequestError('password is required.');
+    }
+
     const user = await tx.user.findUnique({
       where: { email },
     });
     if (!user) {
-      throw new UnauthorizedError();
+      throw new UnauthorizedError('Email or password is incorrect.');
     }
 
     const isOk = await bcrypt.compare(password, user.password);
     if (!isOk) {
-      throw new UnauthorizedError();
+      throw new UnauthorizedError('Email or password is incorrect.');
     }
 
     const userWithoutPass = exclude(user, ['password']);
@@ -127,7 +137,7 @@ export const getUser = async (uid: string): Promise<UserWithoutPassword | null> 
   });
 
   if (user == null) {
-    throw new Error('User not found');
+    throw new UserNotFoundError();
   }
 
   const userWithoutPassword = exclude(user, ['password']);
