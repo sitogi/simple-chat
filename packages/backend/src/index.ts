@@ -1,4 +1,4 @@
-import cors from 'cors';
+// import cors from 'cors';
 import express from 'express';
 
 import { authUserHandler, loginHandler, logoutHandler, signUpHandler, tokenRefreshHandler } from '~/handlers/auth';
@@ -11,7 +11,7 @@ const app = express();
 
 app.use(loggingHandler);
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 
 app.post('/auth/login', wrapApi(loginHandler));

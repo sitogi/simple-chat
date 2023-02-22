@@ -10,4 +10,9 @@ export default defineConfig({
       '~/': `${__dirname}/src/`, // path.join(__dirname, "src/") でも可
     },
   },
+  server: {
+    proxy: {
+      '/auth/': 'http://localhost:3000',
+    },
+  },
 });

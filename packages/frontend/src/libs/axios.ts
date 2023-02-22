@@ -6,9 +6,6 @@ export function setTokenWithHeader(token: string) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 }
 
-// TODO: 環境変数化
-axios.defaults.baseURL = 'http://localhost:3000';
-
 // 401 のときにトークンのリフレッシュを試みる
 axios.interceptors.response.use(
   (response) => response,
