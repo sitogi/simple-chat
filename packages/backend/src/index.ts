@@ -13,12 +13,12 @@ app.use(loggingHandler);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post('/auth/login', wrapApi(loginHandler));
-app.get('/auth/user', verifyToken, wrapApi(authUserHandler));
-app.post('/auth/token-refresh', wrapApi(tokenRefreshHandler));
-app.post('/auth/logout', verifyToken, wrapApi(logoutHandler));
-app.post('/auth/signup', wrapApi(signUpHandler));
-app.get('/profile', verifyToken, wrapApi(getProfileHandler));
+app.post('/api/auth/login', wrapApi(loginHandler));
+app.get('/api/auth/user', verifyToken, wrapApi(authUserHandler));
+app.post('/api/auth/token-refresh', wrapApi(tokenRefreshHandler));
+app.post('/api/auth/logout', verifyToken, wrapApi(logoutHandler));
+app.post('/api/auth/signup', wrapApi(signUpHandler));
+app.get('/api/profile', verifyToken, wrapApi(getProfileHandler));
 app.use(errorHandler); // 包括的エラーハンドリングはすべてのルートよりもあとに use する必要がある
 
 app.listen(process.env.PORT || 3000, () => {

@@ -6,6 +6,8 @@ export function setTokenWithHeader(token: string) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 }
 
+axios.defaults.baseURL = 'api';
+
 // 401 のときにトークンのリフレッシュを試みる
 axios.interceptors.response.use(
   (response) => response,
