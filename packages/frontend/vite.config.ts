@@ -13,6 +13,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/auth/': 'http://localhost:3000',
+      '/profile': 'http://localhost:3000',
     },
   },
 });
